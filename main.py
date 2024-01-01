@@ -8,7 +8,7 @@ from pydantic import BaseModel
 class Prompt(BaseModel):
     prompt: str
 
-pipe = PixArtAlphaPipeline.from_pretrained("PixArt-alpha/PixArt-XL-2-1024-MS", torch_dtype=torch.float16)
+pipe = PixArtAlphaPipeline.from_pretrained("PixArt-alpha/PixArt-XL-2-1024-MS", torch_dtype=torch.float32)
 
 @post("/")
 def generate_image(data: Prompt) -> bytes:
