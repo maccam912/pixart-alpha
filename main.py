@@ -45,11 +45,17 @@ if __name__ == "__main__":
         reserved = httpx.get(URL + "/task")
         try:
             task = reserved.json()
+            print(task)
             id = task["id"]
+            print(id)
             prompt_dict_str = base64.base64decode(task["input"])
+            print(prompt_dict_str)
             prompt_dict = json.loads(prompt_dict_str)
             prompt = Prompt(**prompt_dict)
+            print(prompt)
+            print("Generating image")
             image = generate_image(prompt)
+            print("Writing back")
             httpx.post(URL + "/task", params={"id": id}, body=image)
         except Exception as e:
             print(e)
