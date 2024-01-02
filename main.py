@@ -9,7 +9,7 @@ class Prompt(BaseModel):
     prompt: str
 
 # pipe = PixArtAlphaPipeline.from_pretrained("PixArt-alpha/PixArt-XL-2-1024-MS", torch_dtype=torch.float32)
-pipe = PixArtAlphaPipeline.from_pretrained("PixArt-alpha/PixArt-LCM-XL-2-1024-MS", torch_dtype=torch.float32, use_safetensors=True)
+pipe = PixArtAlphaPipeline.from_pretrained("PixArt-alpha/PixArt-XL-2-1024-MS", torch_dtype=torch.float32, use_safetensors=True)
 #pipe.text_encoder.to_bettertransformer()
 pipe.transformer = torch.compile(pipe.transformer, mode="reduce-overhead", fullgraph=True)
 
@@ -19,7 +19,7 @@ def generate_image(data: Prompt) -> bytes:
         print(data)
         prompt = data.prompt
         print(prompt)
-        image = pipe(prompt, num_inference_steps=10).images[0]
+        image = pipe(prompt, num_inference_steps=14, width=512, height=512).images[0]
         # print(image)
         buf = io.BytesIO()
         # print(buf)
