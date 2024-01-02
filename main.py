@@ -1,9 +1,12 @@
+from time import sleep
+import json
 import base64
 import io
 import torch
 from diffusers import PixArtAlphaPipeline
 from litestar import Litestar, post
 from pydantic import BaseModel
+import httpx
 
 class Prompt(BaseModel):
     prompt: str
@@ -33,4 +36,22 @@ def generate_image(data: Prompt) -> bytes:
     except Exception as e:
         print(e)
 
+
 app = Litestar([generate_image])
+
+if __name__ == "__main__":
+    URL = "https://pluckwork.k3s.koski.co"
+    while True:
+        reserved = httpx.get(URL + "/task")
+        try:
+            task = reserved.json()
+            id = task["id"]
+            prompt_dict_str = base64.base64decode(task["input"])
+            prompt_dict = json.loads(prompt_dict_str)
+            prompt = Prompt(**prompt_dict)
+            image = generate_image(prompt)
+            httpx.post(URL + "/task", params={"id": id}, body=image)
+        except Exception as e:
+            print(e)
+        
+        sleep(10)
