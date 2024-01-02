@@ -19,7 +19,7 @@ def generate_image(data: Prompt) -> bytes:
         print(data)
         prompt = data.prompt
         print(prompt)
-        image = pipe(prompt, num_inference_steps=4).images[0]
+        image = pipe(prompt, num_inference_steps=10).images[0]
         # print(image)
         buf = io.BytesIO()
         # print(buf)
