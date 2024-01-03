@@ -12,14 +12,17 @@ class Prompt(BaseModel):
     prompt: str
 
 # pipe = PixArtAlphaPipeline.from_pretrained("PixArt-alpha/PixArt-XL-2-1024-MS", torch_dtype=torch.float32)
-pipe = PixArtAlphaPipeline.from_pretrained("PixArt-alpha/PixArt-XL-2-1024-MS", torch_dtype=torch.float32, use_safetensors=True)
 #pipe.text_encoder.to_bettertransformer()
+
+pipe = PixArtAlphaPipeline.from_pretrained("PixArt-alpha/PixArt-XL-2-1024-MS", torch_dtype=torch.float32, use_safetensors=True)
 pipe.transformer = torch.compile(pipe.transformer, mode="reduce-overhead", fullgraph=True)
 
-@post("/", media_type="image/jpeg")
+# @post("/", media_type="image/jpeg")
 def generate_image(data: Prompt) -> bytes:
+    print("trying")
     try:
         print(data)
+        print("getting prompt")
         prompt = data.prompt
         print(prompt)
         image = pipe(prompt, num_inference_steps=14, width=512, height=512).images[0]
@@ -35,9 +38,10 @@ def generate_image(data: Prompt) -> bytes:
         return b
     except Exception as e:
         print(e)
+        return b''
 
 
-app = Litestar([generate_image])
+# app = Litestar([generate_image])
 
 if __name__ == "__main__":
     URL = "https://pluckwork.k3s.koski.co"
@@ -48,7 +52,7 @@ if __name__ == "__main__":
             print(task)
             id = task["id"]
             print(id)
-            prompt_dict_str = base64.base64decode(task["input"])
+            prompt_dict_str = base64.b64decode(task["input"])
             print(prompt_dict_str)
             prompt_dict = json.loads(prompt_dict_str)
             prompt = Prompt(**prompt_dict)
@@ -56,7 +60,7 @@ if __name__ == "__main__":
             print("Generating image")
             image = generate_image(prompt)
             print("Writing back")
-            httpx.post(URL + "/task", params={"id": id}, body=image)
+            httpx.post(URL + "/task", params={"id": id}, content=image)
         except Exception as e:
             print(e)
         
